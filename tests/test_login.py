@@ -22,8 +22,13 @@ class TestLogin():
             PIN: Fatched from env file
         """
         load_dotenv("config/.env")
+        # Loading the URL from the Json file
         driver.get(jsonRead("URL"))
+
+        # Initializing the POM class LoginPage
         login=LoginPage(driver)
-        login.type_text_box_pin(os.getenv("PIN"))
+
+        login.type_text_box_pin(os.getenv("PIN")) # Entering the PIN in text box fetched from .env file
+        time.sleep(5) # Forced sleep reason: To show the action done by the script
+        login.click_sign_in()  # Clicking the sign-in button
         time.sleep(5)
-        login.click_sign_in()
