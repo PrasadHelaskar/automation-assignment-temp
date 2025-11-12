@@ -1,10 +1,14 @@
 import sys
 import pprint
+from selenium.common.exceptions import NoSuchElementException,ElementClickInterceptedException,ElementNotVisibleException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.support import expected_conditions as EC
+from utils.logger import Logger
 
-class baseMethods:
+log=Logger().get_logger()
+
+class BaseMethods:
     def __init__(self, driver):
         """
         Initializes the base page object with a WebDriver instance and sets a default wait time.
@@ -25,8 +29,14 @@ class baseMethods:
         Returns:
             WebElement: The visible web element found.
         """
-        op = self.wait.until(EC.visibility_of_element_located(locator))
-        return op
+        try:
+            op = self.wait.until(EC.visibility_of_element_located(locator))
+            return op
+
+        except NoSuchElementException as e:
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def find_elements_wait(self, locator):
         """
@@ -38,8 +48,14 @@ class baseMethods:
         Returns:
             list[WebElement]: A list of visible web elements found.
         """
-        elements = self.wait.until(EC.visibility_of_all_elements_located(locator))
-        return elements
+        try:
+            elements = self.wait.until(EC.visibility_of_all_elements_located(locator))
+            return elements
+
+        except NoSuchElementException as e:
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def find_element_wait_presence(self, locator):
         """
@@ -51,8 +67,14 @@ class baseMethods:
         Returns:
             list[WebElement]: A list of visible web elements found.
         """
-        elements = self.wait.until(EC.presence_of_element_located(locator))
-        return elements
+        try:
+            elements = self.wait.until(EC.presence_of_element_located(locator))
+            return elements
+
+        except NoSuchElementException as e:
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def find_elements_wait_presence(self, locator):
         """
@@ -64,8 +86,14 @@ class baseMethods:
         Returns:
             list[WebElement]: A list of visible web elements found.
         """
-        elements = self.wait.until(EC.presence_of_all_elements_located(locator))
-        return elements
+        try:
+            elements = self.wait.until(EC.presence_of_all_elements_located(locator))
+            return elements
+
+        except NoSuchElementException as e:
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def click(self, locator):
         """
@@ -74,8 +102,15 @@ class baseMethods:
         Parameters:
             locator (tuple): Locator strategy and locator value.
         """
-        element = self.find_element_wait(locator)
-        element.click()
+        try:
+            element = self.find_element_wait(locator)
+            element.click()
+
+        except ElementClickInterceptedException as e:
+            log.error("Failed to interact with the elemet in the view port")
+            log.info(e)
+            sys.exit()
+
 
     def click_presence(self, locator):
         """
@@ -84,8 +119,14 @@ class baseMethods:
         Parameters:
             locator (tuple): Locator strategy and locator value.
         """
-        element = self.find_element_wait_presence(locator)
-        element.click()
+        try:
+            element = self.find_element_wait_presence(locator)
+            element.click()
+
+        except ElementClickInterceptedException as e:
+                    log.error("Failed to interact with the elemet in the view port")
+                    log.info(e)
+                    sys.exit()
 
     def send_keys(self, locator, text):
         """
@@ -95,9 +136,15 @@ class baseMethods:
             locator (tuple): Locator strategy and locator value.
             text (str): Text to input into the element.
         """
-        element = self.find_element_wait(locator)
-        element.clear()
-        element.send_keys(text)
+        try:
+            element = self.find_element_wait(locator)
+            element.clear()
+            element.send_keys(text)
+
+        except ElementClickInterceptedException as e:
+            log.error("Failed to interact with the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def get_text(self, locator):
         """
@@ -109,9 +156,15 @@ class baseMethods:
         Returns:
             str: Text content of the element.
         """
-        element = self.find_element_wait(locator)
-        element_text = element.text
-        return element_text
+        try:
+            element = self.find_element_wait(locator)
+            element_text = element.text
+            return  element_text if element_text else None
+
+        except NoSuchElementException as e:
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def is_visible(self, locator):
         """
@@ -126,9 +179,11 @@ class baseMethods:
         try:
             element = self.find_element_wait(locator)
             op = element.is_displayed()
-            return str(op)
-        except Exception:
-            return False
+            return str(op) if op else False
+        except ElementNotVisibleException as e :
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def clear_element(self, locator):
         """
@@ -137,9 +192,13 @@ class baseMethods:
         Parameters:
             locator (tuple): Locator strategy and locator value.
         """
-        element = self.find_element_wait(locator)
-        element.clear()
-
+        try:
+            element = self.find_element_wait(locator)
+            element.clear()
+        except NoSuchElementException as e :
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def get_url(self):
         """
@@ -149,7 +208,7 @@ class baseMethods:
             str: The current URL loaded in the browser.
         """
         url = self.driver.current_url
-        return url
+        return url if url else None
 
     def get_attribute(self,locator,attribute):
         """
@@ -167,9 +226,15 @@ class baseMethods:
         Raises:
             TimeoutException: If the element is not found within the wait time defined in `find_element_wait`.
         """
-        element = self.find_element_wait(locator)
-        value=element.get_attribute(attribute)
-        return value
+        try:
+            element = self.find_element_wait(locator)
+            value=element.get_attribute(attribute)
+            return value if value else None
+        
+        except NoSuchElementException as e :
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
 
     def hover_on_elemet(self,locator):
         """
@@ -186,10 +251,16 @@ class baseMethods:
         Returns:
             None
         """
-        actions=ActionChains(self.driver)
-        actions.move_to_element(self.find_element_wait(locator)).perform()
+        try:
+            actions=ActionChains(self.driver)
+            actions.move_to_element(self.find_element_wait(locator)).perform()
 
-    def DD(self, data=None):
+        except (NoSuchElementException,ElementClickInterceptedException) as e :
+            log.error("Failed to Locate the elemet in the view port")
+            log.info(e)
+            sys.exit()
+
+    def dump_die(self, data=None):
         """
         Debug utility method to pretty-print the provided data and exit the program.
 
