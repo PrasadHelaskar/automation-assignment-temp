@@ -38,7 +38,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-##▶️ Run Tests
+## ▶️ Run Tests
 ```bash
 
 pytest -v --log-cli-level=info tests
